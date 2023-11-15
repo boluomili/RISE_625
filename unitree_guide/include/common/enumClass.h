@@ -29,7 +29,8 @@ enum class UserCommand{
 #endif  // COMPILE_WITH_MOVE_BASE
     L1_X,       // balanceTest
     L1_A,       // swingTest
-    L1_Y        // stepTest
+    L1_Y,        // stepTest
+    L1_B        //zsl
 };
 
 enum class FrameType{
@@ -56,6 +57,7 @@ enum class FSMStateName{
     FIXEDSTAND,
     FREESTAND,
     TROTTING,
+    ZSL,
 #ifdef COMPILE_WITH_MOVE_BASE
     MOVE_BASE,       // move_base
 #endif  // COMPILE_WITH_MOVE_BASE
