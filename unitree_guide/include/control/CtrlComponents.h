@@ -14,6 +14,7 @@
 #include "control/BalanceCtrl.h"
 #include <string>
 #include <iostream>
+#include "pub.h"
 
 #ifdef COMPILE_DEBUG
 #include "common/PyPlot.h"
@@ -37,6 +38,7 @@ public:
         delete waveGen;
         delete estimator;
         delete balCtrl;
+        delete pub;
 #ifdef COMPILE_DEBUG
         delete plot;
 #endif  // COMPILE_DEBUG
@@ -48,6 +50,7 @@ public:
     WaveGenerator *waveGen;
     Estimator *estimator;
     BalanceCtrl *balCtrl;
+    Pub *pub;
 
 #ifdef COMPILE_DEBUG
     PyPlot *plot;
@@ -83,6 +86,7 @@ public:
     void geneObj(){
         estimator = new Estimator(robotModel, lowState, contact, phase, dt);
         balCtrl = new BalanceCtrl(robotModel);
+        pub=new Pub();
 
 #ifdef COMPILE_DEBUG
         plot = new PyPlot();

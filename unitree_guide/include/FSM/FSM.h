@@ -13,6 +13,7 @@
 #include "FSM/State_BalanceTest.h"
 #include "FSM/State_SwingTest.h"
 #include "FSM/State_StepTest.h"
+#include"FSM/State_Zsl.h"
 #include "common/enumClass.h"
 #include "control/CtrlComponents.h"
 #ifdef COMPILE_WITH_MOVE_BASE
@@ -28,6 +29,8 @@ struct FSMStateList{
     State_BalanceTest *balanceTest;
     State_SwingTest *swingTest;
     State_StepTest *stepTest;
+    //State_Zsl *zsl;
+    State_Zsl *zsl;
 #ifdef COMPILE_WITH_MOVE_BASE
     State_move_base *moveBase;
 #endif  // COMPILE_WITH_MOVE_BASE
@@ -41,6 +44,7 @@ struct FSMStateList{
         delete balanceTest;
         delete swingTest;
         delete stepTest;
+        delete zsl;
 #ifdef COMPILE_WITH_MOVE_BASE
         delete moveBase;
 #endif  // COMPILE_WITH_MOVE_BASE

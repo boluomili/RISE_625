@@ -15,6 +15,8 @@ FSM::FSM(CtrlComponents *ctrlComp)
     _stateList.balanceTest = new State_BalanceTest(_ctrlComp);
     _stateList.swingTest = new State_SwingTest(_ctrlComp);
     _stateList.stepTest = new State_StepTest(_ctrlComp);
+    _stateList.zsl=new State_Zsl(_ctrlComp);
+    //_stateList.
 #ifdef COMPILE_WITH_MOVE_BASE
     _stateList.moveBase = new State_move_base(_ctrlComp);
 #endif  // COMPILE_WITH_MOVE_BASE
@@ -34,7 +36,7 @@ void FSM::initialize(){
 
 void FSM::run(){
     _startTime = getSystemTime();
-    _ctrlComp->sendRecv();
+    _ctrlComp->sendRecv();      //电机的指令发送与接受
     _ctrlComp->runWaveGen();
     _ctrlComp->estimator->run();
     if(!checkSafty()){
@@ -88,6 +90,9 @@ FSMState* FSM::getNextState(FSMStateName stateName){
         break;
     case FSMStateName::STEPTEST:
         return _stateList.stepTest;
+        break;
+    case FSMStateName::ZSL:
+        return _stateList.zsl;
         break;
 #ifdef COMPILE_WITH_MOVE_BASE
     case FSMStateName::MOVE_BASE:

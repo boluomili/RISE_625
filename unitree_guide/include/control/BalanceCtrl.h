@@ -17,12 +17,15 @@ public:
     BalanceCtrl(double mass, Mat3 Ib, Mat6 S, double alpha, double beta);
     BalanceCtrl(QuadrupedRobot *robModel);
     Vec34 calF(Vec3 ddPcd, Vec3 dWbd, RotMat rotM, Vec34 feetPos2B, VecInt4 contact);
+    Vec34 calF(Vec3 ddPcd, Vec3 dWbd, RotMat rotM, Vec34 feetPos2B, VecInt4 contact, Vec3 _mp, Vec3 _hatd);
+
 #ifdef COMPILE_DEBUG
     void setPyPlot(PyPlot *plot){_testPlot = plot;}
 #endif  // COMPILE_DEBUG
 private:
     void calMatrixA(Vec34 feetPos2B, RotMat rotM, VecInt4 contact);
     void calVectorBd(Vec3 ddPcd, Vec3 dWbd, RotMat rotM);
+    void calVectorBd(Vec3 ddPcd, Vec3 dWbd, RotMat rotM, Vec3 tau_t, Vec3 c_tau_t);
     void calConstraints(VecInt4 contact);
     void solveQP();
 

@@ -42,6 +42,8 @@ UserCommand KeyBoard::checkCmd(){
         return UserCommand::L1_A;
     case '8':
         return UserCommand::L1_Y;
+    case '*':
+        return UserCommand::L1_B;   //state_zsl
     case ' ':
         userValue.setZero();
         return UserCommand::NONE;
