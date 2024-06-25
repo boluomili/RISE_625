@@ -45,6 +45,12 @@ State_Zsl::~State_Zsl(){
 
 
 void State_Zsl::enter(){
+
+    FILE *input1;
+    input1 = fopen("AC_RISE.txt","w");
+    FILE *input3;
+    input3 = fopen("AC_RISE_error.txt","w");
+
     _pcd = _est->getPosition();
     _pcd(2) = -_robModel->getFeetPosIdeal()(2, 0);
     _vCmdBody.setZero();
@@ -56,14 +62,37 @@ void State_Zsl::enter(){
     _gait->restart();
 
     //****************RISE**************    //力主要调节y，z方向
-    K_s=Vec3(2, 2, 2).asDiagonal();
-    beita=Vec3(10, 10, 10).asDiagonal();
-    alphe_1=Vec3(5, 5, 5).asDiagonal();
-    alphe_2=Vec3(2, 2, 2).asDiagonal();
+    // K_s=Vec3(10, 1, 10).asDiagonal();
+    // beita=Vec3(50, 2, 50).asDiagonal();
+    // alphe_1=Vec3(10, 2, 10).asDiagonal();
+    // alphe_2=Vec3(5, 1, 5).asDiagonal();
+
+    //仿真优秀参数
+    K_s=Vec3(10, 1, 3).asDiagonal();
+    beita=Vec3(5, 2, 10).asDiagonal();
+    alphe_1=Vec3(5, 2, 10).asDiagonal();
+    alphe_2=Vec3(5, 1, 10).asDiagonal();
+
+
+    // K_s=Vec3(5, 1, 2).asDiagonal();
+    // beita=Vec3(2, 2, 2).asDiagonal();
+    // alphe_1=Vec3(2, 2, 2).asDiagonal();
+    // alphe_2=Vec3(1, 1, 1).asDiagonal();
+
+
+    // K_s=Vec3(1, 1, 1).asDiagonal();
+    // beita=Vec3(2, 2, 2).asDiagonal();
+    // alphe_1=Vec3(1, 1, 1).asDiagonal();
+    // alphe_2=Vec3(1, 1, 1).asDiagonal();
+
+    // K_s=Vec3(5, 5, 5).asDiagonal();
+    // beita=Vec3(10, 10, 10).asDiagonal();，。
+    // alphe_1=Vec3(10, 10, 10).asDiagonal();
+    // alphe_2=Vec3(5, 5, 5).asDiagonal();
 
     // K_s=5;
     // beita=10;
-    // alphe_1=5;
+    // alphe_1=5; 
     // alphe_2=2;
 
     error_1.setZero();
@@ -73,10 +102,26 @@ void State_Zsl::enter(){
     template_sgn.setZero();
 
     //***************RISE力矩***********    //力矩主要调节x，y方向
-    c_K_s=Vec3(2, 2, 2).asDiagonal();
-    c_beita=Vec3(10, 10, 10).asDiagonal();
-    c_alphe_1=Vec3(5, 5, 5).asDiagonal();
-    c_alphe_2=Vec3(2, 2, 2).asDiagonal();
+    // c_K_s=Vec3(2, 2, 2).asDiagonal();
+    // c_beita=Vec3(5, 5, 5).asDiagonal();
+    // c_alphe_1=Vec3(5, 5, 5).asDiagonal();
+    // c_alphe_2=Vec3(2, 2, 2).asDiagonal();
+
+
+    // c_K_s=Vec3(10, 1, 0.5).asDiagonal();
+    // c_beita=Vec3(25, 2, 1).asDiagonal();
+    // c_alphe_1=Vec3(30, 2, 1).asDiagonal();
+    // c_alphe_2=Vec3(15, 1, 1).asDiagonal();
+
+    //仿真优秀参数
+    c_K_s=Vec3(10, 10, 3).asDiagonal();
+    c_beita=Vec3(5, 5, 10).asDiagonal();
+    c_alphe_1=Vec3(5, 5, 10).asDiagonal();
+    c_alphe_2=Vec3(5, 5, 10).asDiagonal();
+    // c_K_s=Vec3(1, 1, 1).asDiagonal();
+    // c_beita=Vec3(2, 2, 2).asDiagonal();
+    // c_alphe_1=Vec3(2, 2, 2).asDiagonal();
+    // c_alphe_2=Vec3(1, 1, 1).asDiagonal();
 
     c_error_1.setZero();
     c_error_2.setZero();
@@ -176,6 +221,12 @@ void State_Zsl::getUserCmd(){
     _vCmdBody(1) = -invNormalize(_userValue.lx, _vyLim(0), _vyLim(1));
     _vCmdBody(2) = 0;
 
+    // if(count<500){
+    //     _vCmdBody(0) =  count*0.001;
+    // }else{
+    //     _vCmdBody(0) =  0.5;
+    // }  
+
     /* Turning */
     _dYawCmd = -invNormalize(_userValue.rx, _wyawLim(0), _wyawLim(1));
     _dYawCmd = 0.9*_dYawCmdPast + (1-0.9) * _dYawCmd;
@@ -186,10 +237,10 @@ void State_Zsl::calcCmd(){
     /* Movement */
     _vCmdGlobal = _B2G_RotMat * _vCmdBody;
 
-    _vCmdGlobal(0) = saturation(_vCmdGlobal(0), Vec2(_velBody(0)-0.2, _velBody(0)+0.2));
-    _vCmdGlobal(1) = saturation(_vCmdGlobal(1), Vec2(_velBody(1)-0.2, _velBody(1)+0.2));
+    _vCmdGlobal(0) = saturation(_vCmdGlobal(0), Vec2(_velBody(0)-0.35, _velBody(0)+0.35));        //饱和函数，应该是防止速度突变  0.2改0.35
+    _vCmdGlobal(1) = saturation(_vCmdGlobal(1), Vec2(_velBody(1)-0.35, _velBody(1)+0.35));
 
-    _pcd(0) = saturation(_pcd(0) + _vCmdGlobal(0) * _ctrlComp->dt, Vec2(_posBody(0) - 0.05, _posBody(0) + 0.05));
+    _pcd(0) = saturation(_pcd(0) + _vCmdGlobal(0) * _ctrlComp->dt, Vec2(_posBody(0) - 0.05, _posBody(0) + 0.05));       //根据速度计算机器人在全局坐标系下的位置 _pcd，并对位置进行饱和处理
     _pcd(1) = saturation(_pcd(1) + _vCmdGlobal(1) * _ctrlComp->dt, Vec2(_posBody(1) - 0.05, _posBody(1) + 0.05));
 
     _vCmdGlobal(2) = 0;
@@ -213,9 +264,18 @@ double State_Zsl::sgn(double val){
         return val;
     }
     }
+
+    // double State_Zsl::sgn(double val){
+    // if (val > 0.05) {
+    //     return 1;
+    // } else if (val < -0.05) {
+    //     return -1;
+    // } else {
+    //     return 0;
+    // }
+    // }
 void State_Zsl::calcTau(){
     _posError = _pcd - _posBody;
-
     _velError = _vCmdGlobal - _velBody;
 
     _ddPcd = _Kpp * _posError + _Kdp * _velError;
@@ -302,7 +362,7 @@ void State_Zsl::calcTau(){
     
 
     //_forceFeetGlobal = - _balCtrl->calF(_ddPcd, _dWbd, _B2G_RotMat, _posFeet2BGlobal, *_contact);
-    _forceFeetGlobal = - _balCtrl->calF(_ddPcd, _dWbd, _B2G_RotMat, _posFeet2BGlobal, *_contact, tau_t, c_miu_t);
+    _forceFeetGlobal = - _balCtrl->calF(_ddPcd, _dWbd, _B2G_RotMat, _posFeet2BGlobal, *_contact, tau_t, c_tau_t);
 
     for(int i(0); i<4; ++i){
         if((*_contact)(i) == 0){
@@ -310,9 +370,9 @@ void State_Zsl::calcTau(){
         }
     }
 
-    _forceFeetBody = _G2B_RotMat * _forceFeetGlobal;
-    _q = vec34ToVec12(_lowState->getQ());
-    _tau = _robModel->getTau(_q, _forceFeetBody);
+    _forceFeetBody = _G2B_RotMat * _forceFeetGlobal;    //足端力转换到身体系.
+    _q = vec34ToVec12(_lowState->getQ());           //关节角度从3*4矩阵专12维向量
+    _tau = _robModel->getTau(_q, _forceFeetBody);       //足端力与关节角度反求力矩
 
 
     if (count%5 ==0)
@@ -320,9 +380,22 @@ void State_Zsl::calcTau(){
     _pub->pub_RISE_c_data(c_error_1, c_error_2, c_integral, c_tau_t, c_template_sgn);     
     _pub->pub_RISE_data(error_1, error_2, integral, tau_t, template_sgn);
     _pub->pub_RISE_error( _vCmdGlobal, _velBody, _wCmdGlobal, _lowState->getGyroGlobal());
-       std::cout<<"RISE已发布"<<std::endl;
+    _pub->pub_height(_posBody(2),_pcd(2));
+       //std::cout<<"RISE已发布"<<std::endl;
+
+        FILE *input1;
+        input1 = fopen("AC_RISE.txt","a");
+        fprintf(input1,"%f %f %f %f %f %f %f %f \n",_posBody(2),_pcd(2),_velBody(0),_vCmdGlobal(0), _velBody(1),_vCmdGlobal(1),_dYawCmd,_lowState->getGyroGlobal()(2));
+        fclose(input1);     
+
+        FILE *input3;
+        input3 = fopen("AC_RISE_error.txt","a");
+        fprintf(input3,"%f %f %f %f %f %f %f %f %f %f %f %f \n",_posError(0),_posError(1),_posError(2),_rotError(0), _rotError(1),_rotError(2),tau_t(0),tau_t(1),tau_t(2),c_tau_t(0),c_tau_t(1),c_tau_t(2));
+        fclose(input3); 
     }
     
+    count++;
+
 
 }
 

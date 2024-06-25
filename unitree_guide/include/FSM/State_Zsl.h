@@ -5,7 +5,7 @@
 #include "Gait/GaitGenerator.h"
 #include "control/BalanceCtrl.h"
 #include "unitree_guide/RISE.h"
-#include "/home/zsl/unitree_guide_11.13/src/unitree_guide/unitree_guide/include/control/pub.h"
+#include "control/pub.h"
 
 
 class State_Zsl:public FSMState{

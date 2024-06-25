@@ -7,6 +7,7 @@
 
 /************************/
 /*******QuadrupedLeg*****/
+//主要包括了正逆运动学的一些计算公式
 /************************/
 QuadrupedLeg::QuadrupedLeg(int legID, float abadLinkLength, float hipLinkLength, 
                            float kneeLinkLength, Vec3 pHip2B)
@@ -25,7 +26,7 @@ QuadrupedLeg::QuadrupedLeg(int legID, float abadLinkLength, float hipLinkLength,
 }
 
 // Forward Kinematics
-Vec3 QuadrupedLeg::calcPEe2H(Vec3 q){
+Vec3 QuadrupedLeg::calcPEe2H(Vec3 q){       //足端到基座（hip）坐标系原点的位置
     float l1 = _sideSign * _abadLinkLength;
     float l2 = -_hipLinkLength;
     float l3 = -_kneeLinkLength;
@@ -51,17 +52,17 @@ Vec3 QuadrupedLeg::calcPEe2H(Vec3 q){
 }
 
 // Forward Kinematics
-Vec3 QuadrupedLeg::calcPEe2B(Vec3 q){
-    return _pHip2B + calcPEe2H(q);
+Vec3 QuadrupedLeg::calcPEe2B(Vec3 q){               //足端到机身体坐标系原点的位置
+    return _pHip2B + calcPEe2H(q);  //
 }
 
 // Derivative Forward Kinematics
 Vec3 QuadrupedLeg::calcVEe(Vec3 q, Vec3 qd){
-    return calcJaco(q) * qd;
+    return calcJaco(q) * qd;        //v=J*qd
 }
 
 // Inverse Kinematics
-Vec3 QuadrupedLeg::calcQ(Vec3 pEe, FrameType frame){
+Vec3 QuadrupedLeg::calcQ(Vec3 pEe, FrameType frame){    //逆运动学，由末端位置求关节角
     Vec3 pEe2H;
     if(frame == FrameType::HIP)
         pEe2H = pEe;
@@ -88,7 +89,7 @@ Vec3 QuadrupedLeg::calcQ(Vec3 pEe, FrameType frame){
     c = sqrt(pow(px, 2) + pow(py, 2) + pow(pz, 2)); // whole length
     b = sqrt(pow(c, 2) - pow(a, 2)); // distance between shoulder and footpoint
 
-    q1 = q1_ik(py, pz, b2y);
+    q1 = q1_ik(py, pz, b2y);    
     q3 = q3_ik(b3z, b4z, b);
     q2 = q2_ik(q1, q3, px, py, pz, b3z, b4z);
 
@@ -100,7 +101,7 @@ Vec3 QuadrupedLeg::calcQ(Vec3 pEe, FrameType frame){
 }
 
 // Derivative Inverse Kinematics
-Vec3 QuadrupedLeg::calcQd(Vec3 q, Vec3 vEe){
+Vec3 QuadrupedLeg::calcQd(Vec3 q, Vec3 vEe){        //由雅可比矩阵求关节角速度
     return calcJaco(q).inverse() * vEe;
 }
 
@@ -111,12 +112,12 @@ Vec3 QuadrupedLeg::calcQd(Vec3 pEe, Vec3 vEe, FrameType frame){
 }
 
 // Inverse Dynamics
-Vec3 QuadrupedLeg::calcTau(Vec3 q, Vec3 force){
+Vec3 QuadrupedLeg::calcTau(Vec3 q, Vec3 force){     //tau = J^T * F
     return calcJaco(q).transpose() * force;
 }
 
 // Jacobian Matrix
-Mat3 QuadrupedLeg::calcJaco(Vec3 q){
+Mat3 QuadrupedLeg::calcJaco(Vec3 q){        //几何法求雅可比矩阵
     Mat3 jaco;
 
     float l1 = _abadLinkLength * _sideSign;

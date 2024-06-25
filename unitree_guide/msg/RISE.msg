@@ -12,3 +12,6 @@ float64[3] vCmdGlobal
 float64[3] velbody
 float64[3] wCmdGlobal
 float64[3] wGlobal
+float64 posBody_2
+float64 pcd_2
+

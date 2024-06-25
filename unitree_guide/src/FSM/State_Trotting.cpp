@@ -8,7 +8,7 @@ State_Trotting::State_Trotting(CtrlComponents *ctrlComp)
              :FSMState(ctrlComp, FSMStateName::TROTTING, "trotting"), 
               _est(ctrlComp->estimator), _phase(ctrlComp->phase), 
               _contact(ctrlComp->contact), _robModel(ctrlComp->robotModel), 
-              _balCtrl(ctrlComp->balCtrl){
+              _balCtrl(ctrlComp->balCtrl),pub(ctrlComp->pub){
     _gait = new GaitGenerator(ctrlComp);
 
     _gaitHeight = 0.08;
@@ -43,7 +43,7 @@ State_Trotting::~State_Trotting(){
 
 void State_Trotting::enter(){
     _pcd = _est->getPosition();
-    _pcd(2) = -_robModel->getFeetPosIdeal()(2, 0);
+    _pcd(2) = -_robModel->getFeetPosIdeal()(2, 0);      //中型站立点
     _vCmdBody.setZero();
     _yawCmd = _lowState->getYaw();
     _Rd = rotz(_yawCmd);
@@ -71,6 +71,7 @@ FSMStateName State_Trotting::checkChange(){
 }
 
 void State_Trotting::run(){
+    std::cout<<"***********Trotting**********"<<std::endl;
     _posBody = _est->getPosition();
     _velBody = _est->getVelocity();
     _posFeet2BGlobal = _est->getPosFeet2BGlobal();
@@ -139,6 +140,15 @@ void State_Trotting::getUserCmd(){
     _vCmdBody(1) = -invNormalize(_userValue.lx, _vyLim(0), _vyLim(1));
     _vCmdBody(2) = 0;
 
+static int count=0;
+
+    if(count<500){
+        _vCmdBody(0) =  count*0.001;
+    }else{
+        _vCmdBody(0) =  0.5;
+    } 
+    count++;
+
     /* Turning */
     _dYawCmd = -invNormalize(_userValue.rx, _wyawLim(0), _wyawLim(1));
     _dYawCmd = 0.9*_dYawCmdPast + (1-0.9) * _dYawCmd;
@@ -167,6 +177,11 @@ void State_Trotting::calcCmd(){
 void State_Trotting::calcTau(){
     _posError = _pcd - _posBody;
     _velError = _vCmdGlobal - _velBody;
+    // std::cout<<"_pcd:"<<_pcd.transpose()<<std::endl;
+    std::cout<<"_posError:"<<_posError.transpose()<<std::endl;
+    std::cout<<"_velError:"<<_velError.transpose()<<std::endl;
+    Vec3 _rotError =  rotMatToExp(_Rd*_G2B_RotMat);
+
 
     _ddPcd = _Kpp * _posError + _Kdp * _velError;
     _dWbd  = _kpw*rotMatToExp(_Rd*_G2B_RotMat) + _Kdw * (_wCmdGlobal - _lowState->getGyroGlobal());
@@ -192,6 +207,30 @@ void State_Trotting::calcTau(){
     _forceFeetBody = _G2B_RotMat * _forceFeetGlobal;
     _q = vec34ToVec12(_lowState->getQ());
     _tau = _robModel->getTau(_q, _forceFeetBody);
+    
+    if (count%5 ==0)
+    {
+        FILE *input2;
+        input2 = fopen("AC_trot.txt","a");
+        fprintf(input2,"%f %f %f %f %f %f %f %f \n",_posBody(2),_pcd(2),_velBody(0),_vCmdGlobal(0), _velBody(1),_vCmdGlobal(1),_dYawCmd,_lowState->getGyroGlobal()(2));
+        fclose(input2);
+        zero_3=Vec3(0,0,0);
+        // void Pub::pub_trot(Vec3 _vCmdGlobal,Vec3 _velbody,Vec3 _wCmdGlobal,Vec3 _wGlobal);
+        pub->pub_trot(_vCmdGlobal,_velBody,_wCmdGlobal,_lowState->getGyroGlobal());
+        pub->pub_RISE_data(_posError, _velError, zero_3, zero_3, zero_3);
+        pub->pub_error_1_2(_posError,_rotError);
+    // _pub->pub_RISE_c_data(c_error_1, c_error_2, c_integral, c_tau_t, c_template_sgn);     
+    // _pub->pub_RISE_data(error_1, error_2, integral, tau_t, template_sgn);
+    // _pub->pub_RISE_error( _vCmdGlobal, _velBody, _wCmdGlobal, _lowState->getGyroGlobal());
+    // _pub->pub_height(_posBody(2),_pcd(2));
+
+                FILE *input4;
+        input4 = fopen("AC_trot_error.txt","a");
+        fprintf(input4,"%f %f %f %f %f %f  \n",_posError(0),_posError(1),_posError(2),_rotError(0), _rotError(1),_rotError(2));
+        fclose(input4); 
+    }
+    
+    count++;
 }
 
 void State_Trotting::calcQQd(){
@@ -208,4 +247,5 @@ void State_Trotting::calcQQd(){
     _qGoal = vec12ToVec34(_robModel->getQ(_posFeet2BGoal, FrameType::BODY));
     _qdGoal = vec12ToVec34(_robModel->getQd(_posFeet2B, _velFeet2BGoal, FrameType::BODY));
 }
+
 

@@ -146,9 +146,13 @@ Go1Robot::Go1Robot(){
                            -0.1300,  0.1300, -0.1300,  0.1300,
                            -0.3200, -0.3200, -0.3200, -0.3200;
 
-    _robVelLimitX << -0.8, 0.8;
-    _robVelLimitY << -0.6, 0.6;
-    _robVelLimitYaw << -1.0, 1.0;
+    _robVelLimitX << -0.5, 0.5;
+    _robVelLimitY << -0.3, 0.3;
+    _robVelLimitYaw << -3.0, 3.0;
+
+    // _robVelLimitX << -2.0, 2.0;
+    // _robVelLimitY << -2.0, 2.0;
+    // _robVelLimitYaw << -1.0, 1.0;
 
 
 #ifdef COMPILE_WITH_REAL_ROBOT

@@ -28,6 +28,11 @@ public:
     void pub_RISE_c_data(Vec3 c_error_1, Vec3 c_error_2, Vec3 c_integral, Vec3 c_tau_t, Vec3 c_template_sgn);
     //发布_velBody, _vCmdGlobal, _lowState->getAccGlobal(), _ddPcd,
     void pub_RISE_error(Vec3 _vCmdGlobal,Vec3 _velbody,Vec3 _wCmdGlobal,Vec3 _wGlobal);
+    void pub_trot(Vec3 _vCmdGlobal,Vec3 _velbody,Vec3 _wCmdGlobal,Vec3 _wGlobal);
+    void pub_height(double posBody_2,double pcd_2);
+    void pub_error_1_2(Vec3 error_1,Vec3 error_2);
+    void pub_force_tau(Vec3 tau_t,Vec3 c_tau_t);
+
 
     // 发布机身方向、角速度、干扰项d、辅助变量更新律dkexi、转矩输出U
     //void pub_data_turning(Vec3 q, Vec3 q_d, Vec3 w, Vec3 w_d, Vec3 err_q, Vec3 err_w, Vec3 disturbance, Vec3 dkexi, Vec3 U);

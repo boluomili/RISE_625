@@ -7,6 +7,7 @@
 #include "FSM/FSMState.h"
 #include "Gait/GaitGenerator.h"
 #include "control/BalanceCtrl.h"
+#include "control/pub.h"
 
 class State_Trotting : public FSMState{
 public:
@@ -65,6 +66,11 @@ private:
     // Calculate average value
     AvgCov *_avg_posError = new AvgCov(3, "_posError", true, 1000, 1000, 1);
     AvgCov *_avg_angError = new AvgCov(3, "_angError", true, 1000, 1000, 1000);
+
+    int count =0;
+    Pub *pub;
+    Vec3 zero_3;
+    Vec3 _rotError;
 };
 
 #endif  // TROTTING_H

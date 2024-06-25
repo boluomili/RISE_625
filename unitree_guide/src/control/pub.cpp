@@ -58,3 +58,40 @@ void Pub::pub_RISE_error(Vec3 _vCmdGlobal,Vec3 _velbody,Vec3 _wCmdGlobal,Vec3 _w
 
 }
 
+void Pub::pub_trot(Vec3 _vCmdGlobal,Vec3 _velbody,Vec3 _wCmdGlobal,Vec3 _wGlobal){
+        for (int i = 0; i < 3; i++)
+    {
+        RISE_data.vCmdGlobal[i]   = _vCmdGlobal[i];     //实际位置
+        RISE_data.velbody[i] = _velbody[i];       //期望位置
+        RISE_data.wCmdGlobal[i] = _wCmdGlobal[i];       //位置误差
+        RISE_data.wGlobal[i]   = _wGlobal[i];         //实际速度  
+
+
+    }
+    pub_RISE.publish(RISE_data);
+    
+}
+
+    void Pub::pub_height(double posBody_2,double pcd_2){
+        RISE_data.pcd_2=pcd_2;
+        RISE_data.posBody_2=posBody_2;
+    }
+
+
+    void Pub::pub_error_1_2(Vec3 error_1,Vec3 error_2){
+        for(int i=0; i<3 ;i++)
+        {
+            RISE_data.error_1[i]=error_1[i];
+            RISE_data.error_2[i]=error_2[i];
+        }
+    }
+
+
+    void Pub::pub_force_tau(Vec3 tau_t,Vec3 c_tau_t){
+                for(int i=0; i<3 ;i++)
+        {
+            RISE_data.tau_t[i]=tau_t[i];
+            RISE_data.c_tau_t[i]=c_tau_t[i];
+        }
+    }
+
