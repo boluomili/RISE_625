@@ -27,12 +27,24 @@ BalanceCtrl::BalanceCtrl(QuadrupedRobot *robModel){
     _g << 0, 0, -9.81;
 
     w << 10, 10, 4, 10, 10, 4, 10, 10, 4, 10, 10, 4;
+
+
+    // w << 10, 10, 6, 10, 10, 6, 10, 10, 6, 10, 10, 6;
+
+    // w << 5, 5, 10, 5, 5, 10, 5, 5, 10, 5, 5, 10;
     u << 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3;
+    // _alpha = 0.001;  //原始数据
+    // _beta  = 0.1;
+    
+    // _alpha = 0.01;
+    // _beta  = 0.001;
+    
     _alpha = 0.001;
     _beta  = 0.1;
     _fricRatio = 0.4;
 
     s << 20, 20, 50, 450, 450, 450; 
+    // s << 5,5,10,50,25,20; 
 
     _S = s.asDiagonal();
     _W = w.asDiagonal();
@@ -82,34 +94,41 @@ void BalanceCtrl::calMatrixA(Vec34 feetPos2B, RotMat rotM, VecInt4 contact){
 }
 
 void BalanceCtrl::calVectorBd(Vec3 ddPcd, Vec3 dWbd, RotMat rotM){
+    std::cout<<"_bd.head(3)的ddpcd："<<ddPcd.transpose()<<std::endl;
     _bd.head(3) = _mass * (ddPcd - _g);
     _bd.tail(3) = (rotM * _Ib * rotM.transpose()) * dWbd;
     std::cout<<"_bd.head(3)："<<_bd.head(3).transpose()<<std::endl;
     std::cout<<"_bd.tail(3)："<<_bd.tail(3).transpose()<<std::endl;
-        FILE *input1;
-        input1 = fopen("/home/zsl/dob_bake_11.12/AC_DOB_trot.txt","a");
-        fprintf(input1,"%lf %lf %lf %lf %lf %lf \n",_bd.head(3)[0],_bd.head(3)[1],_bd.head(3)[2],_bd.tail(3)[0],_bd.tail(3)[1],_bd.tail(3)[2]);
-        fclose(input1);
+        // FILE *input1;
+        // input1 = fopen("/home/zsl/dob_bake_11.12/AC_DOB_trot.txt","a");
+        // fprintf(input1,"%lf %lf %lf %lf %lf %lf \n",_bd.head(3)[0],_bd.head(3)[1],_bd.head(3)[2],_bd.tail(3)[0],_bd.tail(3)[1],_bd.tail(3)[2]);
+        // fclose(input1);
 
 }
 void BalanceCtrl::calVectorBd(Vec3 ddPcd, Vec3 dWbd, RotMat rotM, Vec3 tau_t, Vec3 c_tau_t){
             //_bd.head(3) = _mass * (ddPcd - _g) + Vec3(tau_t(0),tau_t(1),tau_t(2));
             //_bd.head(3) = Vec3(tau_t(0),tau_t(1),tau_t(2));
+    std::cout<<"_bd.head(3)的_mass："<<_mass<<std::endl;
+    std::cout<<"_bd.head(3)的ddpcd："<<ddPcd.transpose()<<std::endl;
 
-             _bd.head(3) = _mass * (ddPcd - _g) + tau_t;
+            //  _bd.head(3) = _mass * (ddPcd - _g)+tau_t;
+             _bd.head(3) = tau_t;
     // _bd.tail(3) = (rotM * _Ib * rotM.transpose()) * dWbd - _hatF;
    // _bd.tail(3) = (rotM * _Ib * rotM.transpose()) * dWbd+_hatd;
-    // _bd.tail(3) = (rotM * _Ib * rotM.transpose()) * dWbd + c_tau_t ;
-     _bd.tail(3) = Vec3(c_tau_t(0),c_tau_t(1),c_tau_t(2)) ;
+    //  _bd.tail(3) = (rotM * _Ib * rotM.transpose()) * dWbd  ;
+    //  _bd.tail(3) = Vec3( c_tau_t(0),c_tau_t(1),c_tau_t(2)); 
+     _bd.tail(3) = Vec3( c_tau_t(0),c_tau_t(1),c_tau_t(2)); 
+    // _bd.tail(3) = c_tau_t;
+
      //_bd.tail(3) = (rotM * _Ib * rotM.transpose()) * dWbd + Vec3(0 , c_tau_t(1), c_tau_t(2)) ; //x方向上不能给
 
     std::cout<<"_bd.head(3)："<<_bd.head(3).transpose()<<std::endl;
     std::cout<<"_bd.tail(3)："<<_bd.tail(3).transpose()<<std::endl;
     //std::cout<<"calBd是第三个"<<std::endl;
-        FILE *input2;
-        input2 = fopen("/home/zsl/dob_bake_11.12/AC_RISE.txt","a");
-        fprintf(input2,"%lf %lf %lf %lf %lf %lf \n",_bd.head(3)[0],_bd.head(3)[1],_bd.head(3)[2],_bd.tail(3)[0],_bd.tail(3)[1],_bd.tail(3)[2]);
-        fclose(input2);
+        // FILE *input2;
+        // input2 = fopen("/home/zsl/dob_bake_11.12/AC_RISE.txt","a");
+        // fprintf(input2,"%lf %lf %lf %lf %lf %lf \n",_bd.head(3)[0],_bd.head(3)[1],_bd.head(3)[2],_bd.tail(3)[0],_bd.tail(3)[1],_bd.tail(3)[2]);
+        // fclose(input2);
     }
 
 

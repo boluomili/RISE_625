@@ -1,0 +1,11 @@
+float64[3] d_Deltav_hat
+float64[3] Deltav_hat
+float64[3] d_vi_hat
+float64[3] vi_hat
+float64[3] E_posError
+float64[3] d_E_posError
+float64[3] E_velError
+float64[3] pos_error_integral
+float64[3] rv
+float64[3] d_vr
+float64[3] F
